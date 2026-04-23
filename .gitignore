@@ -2,6 +2,10 @@
 __pycache__/
 *.pyc
 db.sqlite3
+*.sqlite3
+*.bak
 .env
 media/
 staticfiles/
+output.txt
+products_backup.json
