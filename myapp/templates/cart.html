@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Cart{% endblock %}
+
+{% block content %}
+{% if user.is_authenticated %}
+  <!-- Cart Section -->
+  <section id="cart" class="cart section">
+    <div class="container" data-aos="fade-up" data-aos-delay="100">
+      <div class="row">
+
+        <!-- Cart Items -->
+        <div class="col-lg-8" data-aos="fade-up" data-aos-delay="200">
+          <div class="cart-items">
+            <div class="cart-header d-none d-lg-block">
+              <div class="row align-items-center">
+                <div class="col-lg-6"><h5>Product</h5></div>
+                <div class="col-lg-2 text-center"><h5>Price</h5></div>
+                <div class="col-lg-2 text-center"><h5>Quantity</h5></div>
+                <div class="col-lg-2 text-center"><h5>Total</h5></div>
+              </div>
+            </div>
+
+            {% if cart_items %}
+              {% for item in cart_items %}
+                <div class="cart-item">
+                  <div class="row align-items-center">
+
+                    <!-- Product Info -->
+                    <div class="col-lg-6 col-12 mt-3 mt-lg-0 mb-lg-0 mb-3">
+                      <div class="product-info d-flex align-items-center">
+                        <div class="product-image">
+                          {% if item.product.image_main %}
+                            <img src="{{ item.product.image_main.url }}" alt="{{ item.product.title }}" class="img-fluid" loading="lazy">
+                          {% else %}
+                            <img src="{% static 'images/placeholder.png' %}" alt="{{ item.product.title }}" class="img-fluid" loading="lazy">
+                          {% endif %}
+                        </div>
+                        <div class="product-details ms-3">
+                          <h6 class="product-title">{{ item.product.title }}</h6>
+                          <div class="product-meta">
+                            {% if item.product.color %}<span class="product-color">Color: {{ item.product.color }}</span>{% endif %}
+                            {% if item.product.size %}<span class="product-size">Size: {{ item.product.size }}</span>{% endif %}
+                          </div>
+
+                          <!-- Remove Button -->
+                          <form method="POST" action="{% url 'myapp:remove_from_cart' item.product.id %}">
+                            {% csrf_token %}
+                            <button type="submit" class="remove-item btn btn-link text-danger p-0 mt-1">
+                              <i class="bi bi-trash"></i> Remove
+                            </button>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Price -->
+                    <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                      <span class="current-price">ksh{{ item.product.price|floatformat:2|intcomma }}</span>
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                      <form method="POST" action="{% url 'myapp:update_quantity' item.product.id %}">
+                        {% csrf_token %}
+                        <div class="quantity-selector d-flex justify-content-center align-items-center">
+                          <button type="submit" name="action" value="decrease" class="quantity-btn decrease btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-dash"></i>
+                          </button>
+                          <input type="number" name="quantity" class="quantity-input text-center mx-1" value="{{ item.quantity }}" min="1">
+                          <button type="submit" name="action" value="increase" class="quantity-btn increase btn btn-outline-secondary btn-sm">
+                            <i class="bi bi-plus"></i>
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+
+                    <!-- Total -->
+                    <div class="col-lg-2 col-12 mt-3 mt-lg-0 text-center">
+                      {% with item_total=item.get_total_price %}
+                        <span class="item-total">ksh{{ item_total|floatformat:2|intcomma }}</span>
+                      {% endwith %}
+                    </div>
+
+                  </div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-muted mt-3">Your cart is empty.</p>
+            {% endif %}
+
+            <!-- Cart Actions -->
+            <div class="cart-actions mt-4">
+              <div class="row">
+                <div class="col-lg-6 mb-3 mb-lg-0">
+                  <form method="POST" action="{% url 'myapp:apply_coupon' %}">
+                    {% csrf_token %}
+                    <div class="input-group">
+                      <input type="text" name="coupon_code" class="form-control" placeholder="Coupon code">
+                      <button class="btn btn-outline-accent" type="submit">Apply Coupon</button>
+                    </div>
+                  </form>
+                </div>
+                <div class="col-lg-6 text-md-end">
+                  <form method="POST" action="{% url 'myapp:clear_cart' %}">
+                    {% csrf_token %}
+                    <button class="btn btn-outline-remove me-2">
+                      <i class="bi bi-trash"></i> Clear Cart
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cart Summary -->
+        <div class="col-lg-4 mt-4 mt-lg-0" data-aos="fade-up" data-aos-delay="300">
+          <div class="cart-summary p-4 border rounded">
+            <h4 class="summary-title mb-3">Order Summary</h4>
+            <div class="summary-item d-flex justify-content-between">
+              <span>Subtotal</span>
+              <span>ksh{{ cart_subtotal|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="summary-item d-flex justify-content-between">
+              <span>Shipping</span>
+              <span>ksh{{ shipping_cost|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="summary-item d-flex justify-content-between">
+              <span>Tax</span>
+              <span>ksh{{ tax|floatformat:2|intcomma }}</span>
+            </div>
+            <div class="summary-item d-flex justify-content-between text-danger">
+              <span>Discount</span>
+              <span>-ksh{{ discount|floatformat:2|intcomma }}</span>
+            </div>
+            <hr>
+            <div class="summary-total d-flex justify-content-between fw-bold">
+              <span>Total</span>
+              <span>ksh{{ cart_total|floatformat:2|intcomma }}</span>
+            </div>
+
+            <div class="checkout-button mt-3">
+              <a href="{% url 'myapp:checkout' %}" class="btn btn-accent w-100">
+                Proceed to Checkout <i class="bi bi-arrow-right"></i>
+              </a>
+            </div>
+
+            <div class="continue-shopping mt-2">
+              <a href="{% url 'myapp:index' %}" class="btn btn-link w-100">
+                <i class="bi bi-arrow-left"></i> Continue Shopping
+              </a>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+{% else %}
+  <div class="container mt-5">
+    <div class="alert alert-warning text-center" role="alert">
+      You must be <a href="{% url 'accounts:login' %}">logged in</a> to view your cart.
+    </div>
+  </div>
+{% endif %}
+{% endblock %}

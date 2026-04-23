@@ -1,0 +1,138 @@
+{% load static %}
+<footer id="footer" class="footer dark-background">
+  <div class="footer-main">
+    <div class="container">
+      <div class="row gy-4">
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-widget footer-about">
+            <a href="{% url 'myapp:index' %}" class="logo">
+              <span class="sitename">ALICHA NiceShop</span>
+            </a>
+            <p>Welcome to our shop! We offer high-quality products at affordable prices, with reliable delivery and excellent customer service. Whether you're shopping for yourself or looking for the perfect gift, we're here to help. Thank you for supporting our business!</p>
+
+            <div class="social-links mt-4">
+              <h5>Connect With Us</h5>
+              <div class="social-icons">
+                <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                <a href="#" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
+                <a href="#" aria-label="Twitter"><i class="bi bi-twitter-x"></i></a>
+                <a href="https://www.tiktok.com/@alichaniceshop?lang=en" target="_blank" aria-label="TikTok">
+                  <i class="bi bi-tiktok"></i>
+                </a>
+                <a href="#" aria-label="Pinterest"><i class="bi bi-pinterest"></i></a>
+                <a href="https://www.youtube.com/channel/UCF-cUHAgDpz9Si64ZVuagkg" target="_blank" aria-label="YouTube">
+                  <i class="bi bi-youtube"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-6 col-sm-6">
+          <div class="footer-widget">
+            <h4>Shop</h4>
+            <ul class="footer-links">
+              <li><a href="{% url 'myapp:category' %}">New Arrivals</a></li>
+              <li><a href="{% url 'myapp:category' %}">Bestsellers</a></li>
+              <li><a href="{% url 'myapp:category' %}">Women's Clothing</a></li>
+              <li><a href="{% url 'myapp:category' %}">Men's Clothing</a></li>
+              <li><a href="{% url 'myapp:category' %}">Accessories</a></li>
+              <li><a href="{% url 'myapp:category' %}">Sale</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-md-6 col-sm-6">
+          <div class="footer-widget">
+            <h4>Support</h4>
+            <ul class="footer-links">
+              <li><a href="{% url 'myapp:support' %}">Help Center</a></li>
+
+              {% if request.user.is_authenticated %}
+                <li><a href="{% url 'myapp:order_confirmation_latest' %}">Order Status</a></li>
+              {% else %}
+                <li><a href="{% url 'myapp:index' %}">Order Status</a></li>
+              {% endif %}
+
+              <li><a href="{% url 'myapp:shipping_information' %}">Shipping Info</a></li>
+              <li><a href="{% url 'myapp:return_policy' %}">Returns & Exchanges</a></li>
+              <li><a href="#">Size Guide</a></li>
+              <li><a href="{% url 'myapp:contact' %}">Contact Us</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-lg-4 col-md-6">
+          <div class="footer-widget">
+            <h4>Contact Information</h4>
+            <div class="footer-contact">
+              <div class="contact-item">
+                <i class="bi bi-geo-alt"></i>
+                <span> Nakuru</span>
+              </div>
+              <div class="contact-item">
+                <i class="bi bi-telephone"></i>
+                <span>+254 704113033</span>
+              </div>
+              <div class="contact-item">
+                <i class="bi bi-envelope"></i>
+                <span>alicha3033@gmail.com</span>
+              </div>
+              <div class="contact-item">
+                <i class="bi bi-clock"></i>
+                <span>Monday-Friday: 9am-6pm<br>Saturday: 10am-4pm<br>Sunday: Closed</span>
+              </div>
+            </div>
+
+            <div class="app-buttons mt-4">
+              <a href="#" class="app-btn">
+                <i class="bi bi-apple"></i>
+                <span>App Store</span>
+              </a>
+              <a href="#" class="app-btn">
+                <i class="bi bi-google-play"></i>
+                <span>Google Play</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="container">
+      <div class="row gy-3 align-items-center">
+        <div class="col-lg-6 col-md-12">
+          <div class="copyright">
+            <p>© <span>Copyright</span> <strong class="sitename">ALICHA NiceShop</strong>. All Rights Reserved.</p>
+          </div>
+          <div class="credits mt-1">
+            Designed by <a href="https://bootstrapmade.com/">Gifted web developer</a>
+          </div>
+        </div>
+
+        <div class="col-lg-6 col-md-12">
+          <div class="d-flex flex-wrap justify-content-lg-end justify-content-center align-items-center gap-4">
+            <div class="payment-methods">
+              <div class="payment-icons">
+                <i class="bi bi-credit-card" aria-label="Credit Card"></i>
+                <i class="bi bi-paypal" aria-label="PayPal"></i>
+                <i class="bi bi-apple" aria-label="Apple Pay"></i>
+                <i class="bi bi-google" aria-label="Google Pay"></i>
+                <i class="bi bi-shop" aria-label="Shop Pay"></i>
+                <i class="bi bi-cash" aria-label="Cash on Delivery"></i>
+              </div>
+            </div>
+
+            <div class="legal-links">
+              <a href="{% url 'myapp:tos' %}">Terms</a>
+              <a href="{% url 'myapp:privacy' %}">Privacy</a>
+              <a href="{% url 'myapp:tos' %}">Cookies</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>

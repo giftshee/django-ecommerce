@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Order Confirmation{% endblock %}
+
+{% block content %}
+<!-- Order Confirmation Section -->
+<section id="order-confirmation" class="order-confirmation section">
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+    <div class="order-confirmation-3">
+      <div class="row g-0">
+
+        <!-- Left sidebar with order summary -->
+        <div class="col-lg-4 sidebar" data-aos="fade-right">
+          <div class="sidebar-content">
+
+            <!-- Success animation -->
+            <div class="success-animation">
+              <i class="bi bi-check-lg"></i>
+            </div>
+
+            <!-- Order number and date -->
+            <div class="order-id">
+              <h4>Order #{{ order.id }}</h4>
+              <div class="order-date">{{ order.created_at|date:"F j, Y" }}</div>
+            </div>
+
+            <!-- Order progress stepper -->
+            <div class="order-progress">
+              <div class="stepper-container">
+                <div class="stepper-item {% if order.status in 'confirmed processing shipped delivered' %}completed{% endif %}">
+                  <div class="stepper-icon">1</div>
+                  <div class="stepper-text">Confirmed</div>
+                </div>
+                <div class="stepper-item {% if order.status in 'processing shipped delivered' %}current{% endif %}">
+                  <div class="stepper-icon">2</div>
+                  <div class="stepper-text">Processing</div>
+                </div>
+                <div class="stepper-item {% if order.status in 'shipped delivered' %}current{% endif %}">
+                  <div class="stepper-icon">3</div>
+                  <div class="stepper-text">Shipped</div>
+                </div>
+                <div class="stepper-item {% if order.status == 'delivered' %}current{% endif %}">
+                  <div class="stepper-icon">4</div>
+                  <div class="stepper-text">Delivered</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Price summary -->
+            <div class="price-summary">
+              <h5>Order Summary</h5>
+              <ul class="summary-list">
+                <li>
+                  <span>Subtotal</span>
+                  <span>ksh{{ order.subtotal }}</span>
+                </li>
+                <li>
+                  <span>Shipping</span>
+                  <span>ksh{{ order.shipping_cost }}</span>
+                </li>
+                <li>
+                  <span>Tax</span>
+                  <span>ksh{{ order.tax }}</span>
+                </li>
+                <li class="total">
+                  <span>Total</span>
+                  <span>ksh{{ order.total }}</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Delivery info -->
+            <div class="delivery-info">
+              <h5>Delivery Information</h5>
+              <p class="delivery-estimate">
+                <i class="bi bi-calendar-check"></i>
+                <span>Estimated delivery: {{ order.estimated_delivery|date:"F j, Y" }}</span>
+              </p>
+              <p class="shipping-method">
+                <i class="bi bi-truck"></i>
+                <span>{{ order.shipping_method }}</span>
+              </p>
+            </div>
+
+            <!-- Customer service -->
+            <div class="customer-service">
+              <h5>Need Help?</h5>
+              <a href="{% url 'contact' %}" class="help-link">
+                <i class="bi bi-chat-dots"></i>
+                <span>Contact Support</span>
+              </a>
+              <a href="{% url 'faqs' %}" class="help-link">
+                <i class="bi bi-question-circle"></i>
+                <span>FAQs</span>
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Main content area -->
+        <div class="col-lg-8 main-content" data-aos="fade-in">
+
+          <!-- Thank you message -->
+          <div class="thank-you-message">
+            <h1>Thanks for your order, {{ order.customer.first_name }}!</h1>
+            <p>We've received your order and will begin processing it right away.
+              We'll send you updates via email as your order progresses.</p>
+          </div>
+
+          <!-- Shipping details -->
+          <div class="details-card" data-aos="fade-up">
+            <div class="card-header" data-toggle="collapse">
+              <h3>
+                <i class="bi bi-geo-alt"></i>
+                Shipping Details
+              </h3>
+              <i class="bi bi-chevron-down toggle-icon"></i>
+            </div>
+            <div class="card-body">
+              <div class="row g-4">
+                <div class="col-md-6">
+                  <div class="detail-group">
+                    <label>Ship To</label>
+                    <address>
+                      {{ order.shipping_name }}<br>
+                      {{ order.shipping_address }}<br>
+                      {{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_zip }}<br>
+                      {{ order.shipping_country }}
+                    </address>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="detail-group">
+                    <label>Contact</label>
+                    <div class="contact-info">
+                      <p><i class="bi bi-envelope"></i> {{ order.shipping_email }}</p>
+                      <p><i class="bi bi-telephone"></i> {{ order.shipping_phone }}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment details -->
+          <div class="details-card" data-aos="fade-up">
+            <div class="card-header" data-toggle="collapse">
+              <h3>
+                <i class="bi bi-credit-card"></i>
+                Payment Details
+              </h3>
+              <i class="bi bi-chevron-down toggle-icon"></i>
+            </div>
+            <div class="card-body">
+              <div class="payment-method">
+                <div class="payment-icon">
+                  <i class="bi bi-credit-card-2-front"></i>
+                </div>
+                <div class="payment-details">
+                  <div class="card-type">{{ order.payment_method }}</div>
+                  <div class="card-number">•••• •••• •••• {{ order.card_last4 }}</div>
+                </div>
+              </div>
+              <div class="billing-address mt-4">
+                <h5>Billing Address</h5>
+                <p>{% if order.billing_same_as_shipping %}Same as shipping address{% else %}{{ order.billing_address }}{% endif %}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Order items -->
+          <div class="details-card" data-aos="fade-up">
+            <div class="card-header" data-toggle="collapse">
+              <h3>
+                <i class="bi bi-bag-check"></i>
+                Order Items
+              </h3>
+              <i class="bi bi-chevron-down toggle-icon"></i>
+            </div>
+            <div class="card-body">
+              {% for item in order_items %}
+              <div class="item">
+                <div class="item-image">
+                  <img src="{{ item.product.image_main.url }}" alt="{{ item.product.title }}" loading="lazy">
+                </div>
+                <div class="item-details">
+                  <h4>{{ item.product.title }}</h4>
+                  <div class="item-meta">
+                    {% if item.color %}<span>Color: {{ item.color }}</span>{% endif %}
+                    {% if item.size %}<span>Size: {{ item.size }}</span>{% endif %}
+                  </div>
+                  <div class="item-price">
+                    <span class="quantity">{{ item.quantity }} ×</span>
+                    <span class="price">ksh{{ item.total_price }}</span>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <div class="action-area" data-aos="fade-up">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <a href="{% url 'shop' %}" class="btn btn-back">
+                  <i class="bi bi-arrow-left"></i>
+                  Return to Shop
+                </a>
+              </div>
+              <div class="col-md-6">
+                <a href="{% url 'account_orders' %}" class="btn btn-account">
+                  <span>View in Account</span>
+                  <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recommended products -->
+          <div class="recommended" data-aos="fade-up">
+            <h3>You Might Also Like</h3>
+            <div class="row g-4">
+              {% for product in recommended_products %}
+              <div class="col-6 col-md-4 {% if forloop.counter > 2 %}d-none d-md-block{% endif %}">
+                <div class="product-card">
+                  <div class="product-image">
+                    <img src="{{ product.image_main.url }}" alt="{{ product.title }}" loading="lazy">
+                  </div>
+                  <h5>{{ product.title }}</h5>
+                  <div class="product-price">ksh{{ product.price }}</div>
+                  <a href="{% url 'product_detail' product.id %}" class="btn btn-add-cart">
+                    <i class="bi bi-plus"></i>
+                    Add to Cart
+                  </a>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</section><!-- /Order Confirmation Section -->
+{% endblock %}

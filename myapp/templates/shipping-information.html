@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} Shipping Information {% endblock %}
+
+{% block content %}
+<section id="shipping-info" class="shipping-info section">
+  <div class="container" data-aos="fade-up">
+    <div class="content-wrapper">
+
+      <!-- Delivery Options -->
+      <div class="content-block" data-aos="fade-up" data-aos-delay="100">
+        <div class="section-heading">
+          <i class="bi bi-truck"></i>
+          <h3>Delivery Options</h3>
+          <p>Choose the delivery option that best suits your needs</p>
+        </div>
+        <div class="row gy-4 gx-lg-5">
+          {% for option in delivery_options %}
+          <div class="col-md-6 col-lg-4">
+            <div class="delivery-card">
+              <div class="card-icon">
+                <i class="bi {{ option.icon }}"></i>
+              </div>
+              <h4>{{ option.title }}</h4>
+              <p>{{ option.description }}</p>
+              <div class="delivery-time">
+                <i class="bi bi-clock"></i>
+                <span>{{ option.time }}</span>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Shipping Costs -->
+      <div class="content-block" data-aos="fade-up" data-aos-delay="200">
+        <div class="section-heading">
+          <i class="bi bi-cash-coin"></i>
+          <h3>Shipping Costs</h3>
+          <p>Transparent pricing for all shipping options</p>
+        </div>
+        <div class="shipping-rates">
+          {% for rate in shipping_rates %}
+          <div class="rate-item {% if rate.highlight %}highlight{% endif %}">
+            <div class="rate-type">{{ rate.type }}</div>
+            <div class="rate-cost">{{ rate.cost }}</div>
+            <div class="rate-info">{{ rate.info }}</div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- International Shipping -->
+      <div class="content-block" data-aos="fade-up" data-aos-delay="300">
+        <div class="section-heading">
+          <i class="bi bi-globe"></i>
+          <h3>International Shipping</h3>
+          <p>We deliver worldwide with reliable carriers</p>
+        </div>
+        <div class="international-info">
+          {% for item in international_shipping %}
+          <div class="info-item">
+            <i class="bi {{ item.icon }}"></i>
+            <h5>{{ item.title }}</h5>
+            <p>{{ item.text }}</p>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- FAQ Section -->
+      <div class="content-block" data-aos="fade-up" data-aos-delay="400">
+        <div class="section-heading">
+          <i class="bi bi-question-circle"></i>
+          <h3>Shipping FAQ</h3>
+          <p>Common questions about our shipping services</p>
+        </div>
+        <div class="faq-list">
+          {% for faq in faqs %}
+          <div class="faq-item">
+            <h3>
+              <i class="bi bi-question-circle"></i>
+              {{ faq.question }}
+              <i class="bi bi-chevron-down faq-toggle"></i>
+            </h3>
+            <div class="faq-answer">
+              <p>{{ faq.answer }}</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,361 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Checkout{% endblock %}
+
+{% block content %}
+<section id="checkout" class="checkout section">
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+    <div class="row">
+      <div class="col-lg-7">
+        <div class="checkout-container" data-aos="fade-up">
+
+          {% if order_success %}
+          <div class="alert alert-success text-center" role="alert">
+            ✅ Order placed successfully!
+          </div>
+          {% endif %}
+
+          <form class="checkout-form" method="post" action="{% url 'myapp:checkout' %}">
+            {% csrf_token %}
+
+            <!-- Customer Information -->
+            <div class="checkout-section" id="customer-info">
+              <div class="section-header">
+                <div class="section-number">1</div>
+                <h3>Customer Information</h3>
+              </div>
+              <div class="section-content">
+                <div class="row">
+                  <div class="col-md-6 form-group">
+                    <label for="first-name">First Name</label>
+                    <input type="text" name="first_name" class="form-control" id="first-name" placeholder="Your First Name" required
+                      value="{{ customer.first_name|default_if_none:'' }}">
+                  </div>
+                  <div class="col-md-6 form-group">
+                    <label for="last-name">Last Name</label>
+                    <input type="text" name="last_name" class="form-control" id="last-name" placeholder="Your Last Name" required
+                      value="{{ customer.last_name|default_if_none:'' }}">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="email">Email Address</label>
+                  <input type="email" class="form-control" name="email" id="email" placeholder="Your Email" required
+                    value="{{ customer.email|default_if_none:'' }}">
+                </div>
+                <div class="form-group">
+                  <label for="phone">Phone Number</label>
+                  <input type="tel" class="form-control" name="phone" id="phone" placeholder="Your Phone Number" required
+                    value="{{ customer.phone|default_if_none:'' }}">
+                </div>
+              </div>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="checkout-section" id="shipping-address">
+              <div class="section-header">
+                <div class="section-number">2</div>
+                <h3>Shipping Address</h3>
+              </div>
+              <div class="section-content">
+                <div class="form-group">
+                  <label for="address">Street Address</label>
+                  <input type="text" class="form-control" name="address" id="address" placeholder="Street Address" required
+                    value="{{ customer.address|default_if_none:'' }}">
+                </div>
+                <div class="row">
+                  <div class="col-md-4 form-group">
+                    <label for="city">City</label>
+                    <input type="text" name="city" class="form-control" id="city" placeholder="City" required
+                      value="{{ customer.city|default_if_none:'' }}">
+                  </div>
+                  <div class="col-md-4 form-group">
+                    <label for="state">State</label>
+                    <input type="text" name="state" class="form-control" id="state" placeholder="State" required
+                      value="{{ customer.state|default_if_none:'' }}">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="country">Country</label>
+                  <select class="form-select" id="country" name="country" required>
+                    <option value="">Select Country</option>
+                    <option value="KE" {% if customer.country == 'KE' %}selected{% endif %}>Kenya</option>
+                    <option value="MO" {% if customer.country == 'MO' %}selected{% endif %}>Mombasa</option>
+                    <option value="NA" {% if customer.country == 'NA' %}selected{% endif %}>Nairobi</option>
+                    <option value="NAK" {% if customer.country == 'NAK' %}selected{% endif %}>Nakuru</option>
+                    <option value="ME" {% if customer.country == 'ME' %}selected{% endif %}>Meru</option>
+                    <option value="KI" {% if customer.country == 'KI' %}selected{% endif %}>Kisumu</option>
+                  </select>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="save-address" name="save_address" {% if customer.save_address %}checked{% endif %}>
+                  <label class="form-check-label" for="save-address">
+                    Save this address for future orders
+                  </label>
+                </div>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" id="billing-same" name="billing_same" {% if customer.billing_same|default_if_none:true %}checked{% endif %}>
+                  <label class="form-check-label" for="billing-same">
+                    Billing address same as shipping
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Method -->
+            <div class="checkout-section" id="payment-method">
+              <div class="section-header">
+                <div class="section-number">3</div>
+                <h3>Payment Method</h3>
+              </div>
+              <div class="section-content">
+                <div class="payment-options d-flex flex-column gap-3">
+                  <!-- Credit / Debit Card -->
+                  <div class="payment-option card p-3 d-flex align-items-center gap-3 payment-hover {% if payment_method == 'credit_card' or not payment_method %}active{% endif %}">
+                    <input type="radio" name="payment_method" id="credit-card" value="credit_card" {% if payment_method == 'credit_card' or not payment_method %}checked{% endif %} hidden>
+                    <span class="payment-icon fs-3"><i class="bi bi-credit-card-2-front"></i></span>
+                    <span class="payment-label fw-semibold">Credit / Debit Card</span>
+                  </div>
+
+                  <!-- M-Pesa -->
+                  <div class="payment-option card p-3 d-flex align-items-center gap-3 payment-hover {% if payment_method == 'mpesa' %}active{% endif %}">
+                    <input type="radio" name="payment_method" id="mpesa" value="mpesa" {% if payment_method == 'mpesa' %}checked{% endif %} hidden>
+                    <span class="payment-icon fs-3"><i class="bi bi-phone"></i></span>
+                    <span class="payment-label fw-semibold">M-Pesa</span>
+                  </div>
+
+                  <!-- Cash on Delivery -->
+                  <div class="payment-option card p-3 d-flex align-items-center gap-3 payment-hover {% if payment_method == 'cash' %}active{% endif %}">
+                    <input type="radio" name="payment_method" id="cash" value="cash" {% if payment_method == 'cash' %}checked{% endif %} hidden>
+                    <span class="payment-icon fs-3"><i class="bi bi-cash-stack"></i></span>
+                    <span class="payment-label fw-semibold">Cash on Delivery</span>
+                  </div>
+                </div>
+
+                <!-- Payment Details -->
+                <!-- Credit Card Details -->
+                <div class="payment-details mt-3" id="credit-card-details" {% if payment_method != 'credit_card' and payment_method %}style="display:none;"{% endif %}>
+                  <div class="form-group">
+                    <label for="card-number">Card Number</label>
+                    <input type="text" class="form-control" name="card_number" id="card-number" placeholder="1234 5678 9012 3456"
+                      value="{{ card_number|default_if_none:'' }}">
+                  </div>
+                  <div class="row">
+                    <div class="col-md-6 form-group">
+                      <label for="expiry">Expiration Date</label>
+                      <input type="text" class="form-control" name="expiry" id="expiry" placeholder="MM/YY"
+                        value="{{ expiry|default_if_none:'' }}">
+                    </div>
+                    <div class="col-md-6 form-group">
+                      <label for="cvv">Security Code (CVV)</label>
+                      <input type="text" class="form-control" name="cvv" id="cvv" placeholder="123"
+                        value="{{ cvv|default_if_none:'' }}">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label for="card-name">Name on Card</label>
+                    <input type="text" class="form-control" name="card_name" id="card-name" placeholder="John Doe"
+                      value="{{ card_name|default_if_none:'' }}">
+                  </div>
+                </div>
+
+                <!-- M-Pesa Details -->
+                <div class="payment-details mt-3" id="mpesa-details" {% if payment_method != 'mpesa' %}style="display:none;"{% endif %}>
+                  <div class="form-group">
+                    <label for="mpesa-number">M-Pesa Number</label>
+                    <input type="tel" class="form-control" name="mpesa_number" id="mpesa-number" placeholder="07XXXXXXXX" value="{{ mpesa_number|default_if_none:'' }}">
+                    <small class="text-danger d-none" id="mpesa-error">Enter a valid M-Pesa number (07XXXXXXXX)</small>
+                  </div>
+                  <p class="payment-info text-success">You will complete the payment via M-Pesa after placing your order.</p>
+                </div>
+
+                <!-- Cash on Delivery Details -->
+                <div class="payment-details mt-3" id="cash-details" {% if payment_method != 'cash' %}style="display:none;"{% endif %}>
+                  <p class="payment-info text-success">You will pay with cash upon delivery.</p>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Order Review -->
+            <div class="checkout-section" id="order-review">
+              <div class="section-header">
+                <div class="section-number">4</div>
+                <h3>Order Review</h3>
+              </div>
+              <div class="section-content">
+                <div class="order-items d-flex flex-column gap-3">
+                  {% for item in cart_items %}
+                  <div class="order-item card p-3 d-flex align-items-center gap-3 shadow-sm">
+                    <div class="order-item-image">
+                      {% if item.product.image_main %}
+                      <img src="{{ item.product.image_main.url }}" alt="{{ item.product.title }}" class="img-fluid" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px;">
+                      {% else %}
+                      <img src="{% static 'images/placeholder.png' %}" alt="{{ item.product.title }}" class="img-fluid" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px;">
+                      {% endif %}
+                    </div>
+                    <div class="order-item-details flex-grow-1">
+                      <h5 class="mb-1">{{ item.product.title }}</h5>
+
+                      {% if item.variant %}
+                      <p class="text-muted mb-1">Variant: {{ item.variant }}</p>
+                      {% endif %}
+                      {% if item.color %}
+                      <p class="text-muted mb-1">Color: {{ item.color }}</p>
+                      {% endif %}
+                      {% if item.size %}
+                      <p class="text-muted mb-1">Size: {{ item.size }}</p>
+                      {% endif %}
+
+                      <p class="mb-1">Quantity: {{ item.quantity }}</p>
+                      <p class="fw-bold mb-0">ksh
+                        {% if item.get_price %}
+                          {{ item.get_price|floatformat:2 }}
+                        {% else %}
+                          {{ item.product.price|floatformat:2 }}
+                        {% endif %}
+                      </p>
+                    </div>
+                  </div>
+                  {% empty %}
+                  <p>Your cart is empty.</p>
+                  {% endfor %}
+                </div>
+
+                <!-- Order Summary Card -->
+                <div class="order-summary card p-3 mt-4 shadow-sm">
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal</span>
+                    <span>ksh{{ subtotal|floatformat:2 }}</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Shipping</span>
+                    <span>ksh{{ shipping|floatformat:2 }}</span>
+                  </div>
+                  <div class="d-flex justify-content-between mb-2">
+                    <span>Tax</span>
+                    <span>ksh{{ tax|floatformat:2 }}</span>
+                  </div>
+                  <hr>
+                  <div class="d-flex justify-content-between fw-bold fs-5">
+                    <span>Total</span>
+                    <span>ksh{{ total|floatformat:2 }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Place Order Button -->
+            <div class="place-order mt-4 text-end">
+              <button type="submit" class="btn btn-primary btn-lg">
+                Place Order - ksh{{ total|floatformat:2 }}
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</section>
+
+<style>
+  .payment-option { cursor:pointer; border:1px solid #dee2e6; border-radius:8px; transition:0.2s; background-color:#f8f9fa; }
+  .payment-option.payment-hover:hover { transform:translateY(-3px); box-shadow:0 4px 12px rgba(0,0,0,0.1); }
+  .payment-option.active { border-color:#0d6efd; background-color:#e7f1ff; }
+  .payment-icon { color:#0d6efd; }
+  .payment-label { font-size:1rem; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  const paymentCards = document.querySelectorAll('.payment-option');
+  const creditCardDetails = document.getElementById('credit-card-details');
+  const mpesaDetails = document.getElementById('mpesa-details');
+  const cashDetails = document.getElementById('cash-details');
+  const mpesaError = document.getElementById('mpesa-error');
+  const checkoutForm = document.querySelector('.checkout-form');
+
+  function updatePaymentDetails() {
+
+    const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+
+    if(!selectedPayment){
+      return;
+    }
+
+    const selected = selectedPayment.value;
+
+    creditCardDetails.style.display = selected === 'credit_card' ? 'block' : 'none';
+    mpesaDetails.style.display = selected === 'mpesa' ? 'block' : 'none';
+    cashDetails.style.display = selected === 'cash' ? 'block' : 'none';
+
+    mpesaError.classList.add('d-none');
+  }
+
+  paymentCards.forEach(card => {
+    card.addEventListener('click', function() {
+
+      paymentCards.forEach(c => c.classList.remove('active'));
+      card.classList.add('active');
+
+      const radio = card.querySelector('input[type="radio"]');
+      radio.checked = true;
+
+      updatePaymentDetails();
+    });
+  });
+
+  checkoutForm.addEventListener('submit', function(e) {
+
+    const firstName = document.getElementById('first-name').value.trim();
+    const lastName = document.getElementById('last-name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+
+    const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+
+    if (!firstName || !lastName || !email || !phone) {
+      e.preventDefault();
+      alert('Please fill in all customer information.');
+      return;
+    }
+
+    if (!selectedPayment) {
+      e.preventDefault();
+      alert('Please select a payment method.');
+      return;
+    }
+
+    const selected = selectedPayment.value;
+
+    if (selected === 'mpesa') {
+
+      const mpesaNumber = document.getElementById('mpesa-number').value.trim();
+
+      const mpesaRegex = /^254\d{9}$/;
+
+      if (!mpesaRegex.test(mpesaNumber)) {
+        e.preventDefault();
+        mpesaError.classList.remove('d-none');
+        mpesaError.innerText = "Enter a valid M-Pesa number (2547XXXXXXXX)";
+        return;
+      } else {
+        mpesaError.classList.add('d-none');
+      }
+    }
+
+  });
+
+  updatePaymentDetails();
+
+});
+</script>
+
+
+{% endblock %}

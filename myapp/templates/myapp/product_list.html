@@ -1,0 +1,261 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<main class="main">
+
+  <!-- Page Title -->
+  <div class="page-title light-background">
+    <div class="container d-lg-flex justify-content-between align-items-center">
+      <h1 class="mb-2 mb-lg-0">Products</h1>
+      <nav class="breadcrumbs">
+        <ol>
+          <li><a href="{% url 'myapp:index' %}">Home</a></li>
+          <li class="current">Products</li>
+        </ol>
+      </nav>
+      {% if user.is_staff %}
+        <a href="{% url 'myapp:product_add' %}" class="btn btn-sm btn-success">+ Add Product</a>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="container my-4">
+    
+    <!-- Top-level Category Cards -->
+    <div class="row g-4 mb-5">
+      {% for category in categories %}
+        <div class="col-6 col-md-3">
+          <a href="?category={{ category.slug }}" class="text-decoration-none">
+            <div class="card category-card h-100 text-center">
+              {% if category.image %}
+                <img src="{{ category.image.url }}" class="card-img-top main-image" alt="{{ category.name }}">
+              {% else %}
+                <img src="{% static 'images/default-category.jpg' %}" class="card-img-top main-image" alt="{{ category.name }}">
+              {% endif %}
+              {% if category.image_hover %}
+                <img src="{{ category.image_hover.url }}" class="card-img-top hover-image" alt="{{ category.name }}" style="display:none;">
+              {% endif %}
+              <div class="card-body">
+                <h5 class="card-title">{{ category.name }}</h5>
+                {% if category.subcategories.exists %}
+                  <p class="text-muted small">{{ category.subcategories.count }} subcategories</p>
+                {% endif %}
+              </div>
+            </div>
+          </a>
+        </div>
+      {% empty %}
+        <p>No categories available.</p>
+      {% endfor %}
+    </div>
+
+    <div class="row">
+      <!-- SIDEBAR -->
+      <aside class="col-lg-4 sidebar mb-4 mb-lg-0">
+        <form method="get" class="filter-form">
+          <!-- Search -->
+          <div class="mb-3">
+            <label for="q" class="form-label">Search Products</label>
+            <input type="text" id="q" name="q" value="{{ search_query }}" class="form-control" placeholder="Search products...">
+          </div>
+
+          <!-- Categories in sidebar -->
+          <div class="mb-3">
+            <h5>Categories</h5>
+            <ul class="category-tree list-unstyled">
+              {% for category in categories %}
+                <li class="category-item mb-2">
+                  <div class="d-flex justify-content-between align-items-center category-header"
+                       data-bs-toggle="collapse"
+                       data-bs-target="#category-{{ category.id }}"
+                       aria-expanded="false">
+                    <a href="?category={{ category.slug }}" class="category-link">{{ category.name }}</a>
+                    {% if category.subcategories.exists %}
+                      <span class="category-toggle"><i class="bi bi-chevron-down"></i></span>
+                    {% endif %}
+                  </div>
+                  {% if category.subcategories.exists %}
+                    <ul id="category-{{ category.id }}" class="subcategory-list list-unstyled collapse ps-3 mt-2">
+                      {% for sub in category.subcategories.all %}
+                        <li class="subcategory-item d-flex align-items-center mb-1 position-relative">
+                          <a href="?category={{ sub.slug }}" class="subcategory-link me-2">{{ sub.name }}</a>
+                          {% if sub.image %}
+                            <img src="{{ sub.image.url }}" alt="{{ sub.name }}" class="subcategory-main-image" width="30" height="30">
+                          {% endif %}
+                          {% if sub.image_hover %}
+                            <img src="{{ sub.image_hover.url }}" alt="{{ sub.name }}" class="subcategory-hover-image" width="30" height="30" style="display:none; position:absolute; left:0; top:0;">
+                          {% endif %}
+                        </li>
+                      {% endfor %}
+                    </ul>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+
+          <!-- Price -->
+          <div class="mb-3">
+            <h5>Price</h5>
+            <div class="d-flex gap-2">
+              <input type="number" name="price_min" class="form-control" placeholder="Min" value="{{ price_min }}">
+              <input type="number" name="price_max" class="form-control" placeholder="Max" value="{{ price_max }}">
+            </div>
+          </div>
+
+          <!-- Brand -->
+          <div class="mb-3">
+            <h5>Brand</h5>
+            {% for brand in brands %}
+              <div class="form-check">
+                <input class="form-check-input"
+                       type="checkbox"
+                       name="brand"
+                       value="{{ brand.id }}"
+                       id="brand-{{ brand.id }}"
+                       {% if brand.id|stringformat:"s" in selected_brands %}checked{% endif %}>
+                <label class="form-check-label" for="brand-{{ brand.id }}">{{ brand.name }}</label>
+              </div>
+            {% endfor %}
+          </div>
+
+          <!-- Sort -->
+          <div class="mb-3">
+            <h5>Sort By</h5>
+            <select class="form-select" name="sort">
+              <option value="">Featured</option>
+              <option value="price_asc" {% if selected_sort == 'price_asc' %}selected{% endif %}>Price: Low to High</option>
+              <option value="price_desc" {% if selected_sort == 'price_desc' %}selected{% endif %}>Price: High to Low</option>
+              <option value="newest" {% if selected_sort == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+        </form>
+      </aside>
+
+      <!-- PRODUCTS GRID -->
+      <section class="col-lg-8">
+        <div class="row g-4">
+          {% for product in products %}
+            <div class="col-6 col-xl-4">
+              <div class="product-card">
+                <div class="product-image">
+                  {% if product.image_main %}
+                    <img src="{{ product.image_main.url }}" alt="{{ product.title }}">
+                  {% endif %}
+                  {% if product.image_hover %}
+                    <img src="{{ product.image_hover.url }}" class="hover-image" alt="{{ product.title }}">
+                  {% endif %}
+                  <div class="product-overlay">
+                    <div class="product-actions">
+                      <!-- Quick View -->
+                      <a href="{% url 'myapp:product_details' product.pk %}" class="action-btn" title="Quick View">
+                        <i class="bi bi-eye"></i>
+                      </a>
+
+                      <!-- Add to Cart -->
+                      <form method="post" action="{% url 'myapp:add_to_cart' product.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="action-btn" title="Add to Cart">
+                          <i class="bi bi-cart-plus"></i>
+                        </button>
+                      </form>
+
+                      <!-- Wishlist Toggle -->
+                      {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'myapp:wishlist_add' product.id %}" style="display:inline;">
+                          {% csrf_token %}
+                          <button type="submit" class="action-btn" title="Wishlist">
+                            {% if product.id in wishlist_product_ids %}
+                              <i class="bi bi-heart-fill text-danger"></i>
+                            {% else %}
+                              <i class="bi bi-heart"></i>
+                            {% endif %}
+                          </button>
+                        </form>
+                      {% else %}
+                        <a href="{% url 'accounts:login' %}" class="action-btn" title="Login to add to Wishlist">
+                          <i class="bi bi-heart"></i>
+                        </a>
+                      {% endif %}
+
+                      {% if user.is_staff %}
+                        <form method="post" action="{% url 'myapp:product_delete' product.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure?');">
+                          {% csrf_token %}
+                          <button type="submit" class="action-btn" title="Delete"><i class="bi bi-trash"></i></button>
+                        </form>
+                        <a href="{% url 'myapp:product_edit' product.pk %}" class="action-btn" title="Edit"><i class="bi bi-pencil"></i></a>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  {% if product.is_new %}
+                    <span class="product-badge new">New</span>
+                  {% elif product.discount %}
+                    <span class="product-badge sale">-{{ product.discount }}%</span>
+                  {% endif %}
+                </div>
+
+                <div class="product-details">
+                  <div class="product-category">{{ product.category.name }}</div>
+                  <h4 class="product-title">
+                    <a href="{% url 'myapp:product_details' product.pk %}">{{ product.title }}</a>
+                  </h4>
+                  <div class="product-price">
+                    ksh{{ product.price }}
+                    {% if product.old_price %}
+                      <span class="original-price">ksh{{ product.old_price }}</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <p>No products available.</p>
+          {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <nav class="d-flex justify-content-center mt-4">
+          <ul class="pagination">
+            {% if products.has_previous %}
+              <li class="page-item"><a class="page-link" href="?page={{ products.previous_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">Previous</a></li>
+            {% endif %}
+            {% for num in products.paginator.page_range %}
+              {% if products.number == num %}
+                <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+              {% elif num > products.number|add:'-3' and num < products.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ num }}{% if query_string %}&{{ query_string }}{% endif %}">{{ num }}</a></li>
+              {% endif %}
+            {% endfor %}
+            {% if products.has_next %}
+              <li class="page-item"><a class="page-link" href="?page={{ products.next_page_number }}{% if query_string %}&{{ query_string }}{% endif %}">Next</a></li>
+            {% endif %}
+          </ul>
+        </nav>
+      </section>
+    </div>
+  </div>
+</main>
+
+<!-- Hover image JS -->
+<script>
+document.querySelectorAll('.category-card, .subcategory-item').forEach(item => {
+    const mainImg = item.querySelector('.main-image, .subcategory-main-image');
+    const hoverImg = item.querySelector('.hover-image, .subcategory-hover-image');
+    if(mainImg && hoverImg){
+        item.addEventListener('mouseenter', () => {
+            mainImg.style.display = 'none';
+            hoverImg.style.display = 'block';
+        });
+        item.addEventListener('mouseleave', () => {
+            hoverImg.style.display = 'none';
+            mainImg.style.display = 'block';
+        });
+    }
+});
+</script>
+
+{% endblock %}

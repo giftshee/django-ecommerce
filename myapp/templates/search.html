@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+
+<!-- Compact Search Header -->
+<section class="search-results-header py-3 bg-light rounded mb-4 shadow-sm">
+  <div class="container">
+    <div class="row justify-content-center align-items-center">
+      <div class="col-md-8 col-lg-6 text-center mb-2">
+        {% if query %}
+          <h4 class="mb-1">
+            {{ results_count }} result{{ results_count|pluralize }} found
+            for "<strong>{{ query }}</strong>"
+          </h4>
+        {% else %}
+          <h4 class="mb-1">Search Products</h4>
+        {% endif %}
+      </div>
+      <div class="col-md-8 col-lg-6">
+        <form action="{% url 'myapp:search' %}" method="get" class="d-flex justify-content-center">
+          <input
+            type="text"
+            class="form-control form-control-sm me-2"
+            name="q"
+            placeholder="Search for products"
+            value="{{ query|default:'' }}"
+            required>
+          <button class="btn btn-sm btn-primary">
+            <i class="bi bi-search"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Search Results Grid -->
+<section class="search-product-list">
+  <div class="container py-2">
+
+    {% if results %}
+      <div class="row g-4">
+        {% for product in results %}
+          <div class="col-6 col-sm-6 col-md-4 col-lg-3">
+            <div class="product-card h-100 border rounded shadow-sm d-flex flex-column position-relative p-2">
+
+              <!-- Badges -->
+              {% if product.is_new %}
+                <span class="badge bg-success position-absolute top-0 start-0 m-2 new-badge">New</span>
+              {% endif %}
+              {% if product.discount %}
+                <span class="badge bg-danger position-absolute top-0 end-0 m-2">
+                  -{{ product.discount }}%
+                </span>
+              {% endif %}
+
+              <!-- Product Image -->
+              <div class="product-image text-center flex-shrink-0 mb-2">
+                <img
+                  src="{{ product.image_main.url }}"
+                  class="img-fluid"
+                  style="max-height:220px; object-fit:contain;"
+                  alt="{{ product.title }}">
+              </div>
+
+              <!-- Product Details -->
+              <div class="product-details p-2 flex-grow-1 d-flex flex-column justify-content-between text-center">
+
+                {% if product.category %}
+                  <div class="product-category text-muted small mb-1">
+                    {{ product.category.name }}
+                  </div>
+                {% endif %}
+
+                <!-- Product Title -->
+                <h5 class="product-title mb-2">
+                  {{ product.title }}
+                </h5>
+
+                <div class="product-meta mb-2">
+                  {% if product.discount and product.old_price %}
+                    <div class="product-price fw-bold text-danger">
+                      Ksh {{ product.price }}
+                    </div>
+                    <div class="text-muted small text-decoration-line-through">
+                      Ksh {{ product.old_price }}
+                    </div>
+                  {% else %}
+                    <div class="product-price fw-bold">
+                      Ksh {{ product.price }}
+                    </div>
+                  {% endif %}
+                </div>
+
+                <a href="{% url 'myapp:product_details' product.id %}"
+                   class="btn btn-sm btn-outline-primary w-100 mt-auto">
+                  View Product
+                </a>
+
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+    {% else %}
+      <!-- No Results Illustration -->
+      <div class="col-12 text-center py-5">
+        <img src="{% static 'images/no-results.png' %}" alt="No Results" class="img-fluid mb-3" style="max-width:200px;">
+        <h5 class="text-muted">Oops! No products found.</h5>
+        <p class="text-muted small">Try adjusting your search or filters.</p>
+      </div>
+    {% endif %}
+
+  </div>
+</section>
+
+<!-- CSS for Modern Layout + Badges + Discounts + Animation -->
+<style>
+/* Search Header */
+.search-results-header {
+    background-color: #f8f9fa;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.search-results-header h4 {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+/* Product Cards */
+.product-card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+}
+
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+}
+
+.product-image img {
+    width: auto;
+    max-height: 220px; /* bigger image */
+    object-fit: contain;
+}
+
+.product-details h5 {
+    font-size: 0.95rem;
+    min-height: 2.5em; /* keeps card heights consistent */
+}
+
+.product-price {
+    color: #007bff;
+}
+
+/* Badges */
+.product-card .badge {
+    font-size: 0.7rem;
+    padding: 0.35em 0.5em;
+}
+
+/* Animated New Badge */
+.new-badge {
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Strikethrough old price */
+.text-decoration-line-through {
+    text-decoration: line-through;
+}
+
+/* No Results Illustration */
+.search-product-list img {
+    display: inline-block;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+    .search-results-header h4 {
+        font-size: 0.9rem;
+    }
+    .product-image img {
+        max-height: 160px; /* smaller on mobile */
+    }
+}
+</style>
+
+{% endblock %}

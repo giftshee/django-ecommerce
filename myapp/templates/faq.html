@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %} FAQ {% endblock %}
+ 
+{% block content %}
+<!-- FAQ Section -->
+<section id="faq" class="faq section">
+
+  <div class="container" data-aos="fade-up" data-aos-delay="100">
+
+    <div class="row gy-4 justify-content-between">
+      <div class="col-lg-8">
+
+        <div class="faq-list">
+          <!-- FAQ Item 1 -->
+          <div class="faq-item faq-active" data-aos="fade-up" data-aos-delay="100">
+            <h3>How do I start my Shopify store?</h3>
+            <div class="faq-content" style="display: block;">
+              <p>
+                Getting started is easy. Sign up for a Shopify account, choose a theme, add your products, and set up payment and shipping options. Shopify’s guides and tutorials make it simple to launch your store quickly.
+              </p>
+            </div>
+            <i class="bi bi-plus faq-toggle"></i>
+          </div>
+
+          <!-- FAQ Item 2 -->
+          <div class="faq-item faq-active" data-aos="fade-up" data-aos-delay="200">
+            <h3>Can I customize my store design?</h3>
+            <div class="faq-content" style="display: block;">
+              <p>
+                Yes! Shopify allows you to customize your store’s appearance using themes and the drag-and-drop editor. You can also add custom code for advanced design changes.
+              </p>
+            </div>
+            <i class="bi bi-plus faq-toggle"></i>
+          </div>
+
+          <!-- FAQ Item 3 -->
+          <div class="faq-item faq-active" data-aos="fade-up" data-aos-delay="300">
+            <h3>Which payment methods can I accept?</h3>
+            <div class="faq-content" style="display: block;">
+              <p>
+                Shopify supports a wide range of payment options including credit cards, PayPal, Shopify Payments, and many third-party gateways. You can enable multiple options to make it easy for customers to pay.
+              </p>
+            </div>
+            <i class="bi bi-plus faq-toggle"></i>
+          </div>
+
+          <!-- FAQ Item 4 -->
+          <div class="faq-item faq-active" data-aos="fade-up" data-aos-delay="400">
+            <h3>How do I manage shipping and orders?</h3>
+            <div class="faq-content" style="display: block;">
+              <p>
+                Shopify provides tools to set up shipping rates, print labels, and track orders. You can automate shipping rules and notifications to keep your customers updated.
+              </p>
+            </div>
+            <i class="bi bi-plus faq-toggle"></i>
+          </div>
+
+          <!-- FAQ Item 5 -->
+          <div class="faq-item faq-active" data-aos="fade-up" data-aos-delay="500">
+            <h3>Can I sell internationally?</h3>
+            <div class="faq-content" style="display: block;">
+              <p>
+                Absolutely! Shopify supports multiple currencies and languages, allowing you to reach customers around the world. You can also manage international shipping and taxes easily.
+              </p>
+            </div>
+            <i class="bi bi-plus faq-toggle"></i>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Contact Card -->
+      <div class="col-lg-4" data-aos="fade-up" data-aos-delay="200">
+        <div class="faq-card">
+          <i class="bi bi-chat-dots-fill"></i>
+          <h3>Can't find the answer to your question?</h3>
+          <p>If you need help with your Shopify store, our support team is ready to assist. From store setup to sales strategies, we provide guidance to help your online shop succeed.</p>
+          <a href="#" class="btn btn-primary">Contact Us</a>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</section><!-- /FAQ Section -->
+
+<!-- FAQ Toggle Script -->
+<script>
+document.querySelectorAll('.faq-toggle').forEach(toggle => {
+  toggle.addEventListener('click', () => {
+    const item = toggle.closest('.faq-item');
+    const content = item.querySelector('.faq-content');
+    if(content.style.display === 'block'){
+      content.style.display = 'none';
+      item.classList.remove('faq-active');
+    } else {
+      content.style.display = 'block';
+      item.classList.add('faq-active');
+    }
+  });
+});
+</script>
+{% endblock %}

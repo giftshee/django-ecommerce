@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+{% load form_tags %}
+
+
+{% block title %}Register{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+  <div class="card shadow p-4" style="width: 450px;">
+    <h3 class="mb-3 text-center">Create Your Account</h3>
+    <p class="text-center text-muted mb-4">Join us today and start shopping</p>
+
+    <form method="post" action="{% url 'accounts:register' %}">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="mb-3">
+        {{ form.username.label_tag }}
+        {{ form.username|add_class:"form-control" }}
+        {{ form.username.errors }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.password1.label_tag }}
+        {{ form.password1|add_class:"form-control" }}
+        {{ form.password1.errors }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.password2.label_tag }}
+        {{ form.password2|add_class:"form-control" }}
+        {{ form.password2.errors }}
+      </div>
+
+      <button type="submit" class="btn btn-success w-100">Create Account</button>
+    </form>
+
+    <hr class="my-4" />
+
+    <div class="text-center">
+      <p>Already have an account? <a href="{% url 'accounts:login' %}">Sign in</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

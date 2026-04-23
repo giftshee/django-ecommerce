@@ -1,0 +1,568 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>{% block title %}ALICHA NICESHOP{% endblock %}</title>
+
+  <!-- Favicons -->
+  <link href="{% static 'assets/img/favicon.png' %}" rel="icon">
+  <link href="{% static 'assets/img/apple-touch-icon.png' %}" rel="apple-touch-icon">
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100..900&family=Montserrat:wght@100..900&family=Poppins:wght@100..900&display=swap" rel="stylesheet">
+
+  <!-- Vendor CSS Files -->
+  <link href="{% static 'assets/vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/bootstrap-icons/bootstrap-icons.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/swiper/swiper-bundle.min.css' %}" rel="stylesheet">
+  <link href="{% static 'assets/vendor/glightbox/css/glightbox.min.css' %}" rel="stylesheet">
+
+  <!-- Main CSS File -->
+  <link href="{% static 'assets/css/main.css' %}" rel="stylesheet">
+
+  <!-- Custom CSS Fixes -->
+  <style>
+    /* FORCE pointer-events so nothing blocks clicks */
+    * {
+      pointer-events: auto !important;
+    }
+
+    body, html {
+      overflow-x: hidden;
+    }
+
+    /* Product Card CSS */
+    .product-card {
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      transition: box-shadow 0.3s ease;
+      position: relative;
+    }
+
+    .product-card:hover {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .product-image {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .product-image img {
+      width: 100%;
+      display: block;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    .product-image .hover-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: 1;
+      transition: opacity 0.4s ease;
+    }
+
+    .product-card:hover .hover-image {
+      opacity: 1;
+    }
+
+    .product-card:hover .product-image img:first-child {
+      opacity: 0;
+    }
+
+    .product-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
+      z-index: 2;
+    }
+
+    .product-card:hover .product-overlay {
+      opacity: 1;
+    }
+
+    .product-actions {
+      display: flex;
+      gap: 10px;
+      pointer-events: auto;
+    }
+
+    .action-btn,
+    .product-actions a {
+      width: 42px;
+      height: 42px;
+      background: #fff;
+      border: none;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e60c0c;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .action-btn:hover,
+    .product-actions a:hover {
+      background: #0d6efd;
+      color: #fff;
+    }
+
+    .product-details {
+      padding: 15px;
+      text-align: center;
+    }
+
+    .product-title a {
+      color: #7811eeff;
+      text-decoration: none;
+    }
+
+    .product-title a:hover {
+      color: #0d6efd;
+    }
+
+    .product-badge {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 4px 8px;
+      font-size: 12px;
+      color: #fff;
+      border-radius: 4px;
+      z-index: 3;
+    }
+
+    .product-badge.new {
+      background: #198754;
+    }
+
+    .product-badge.sale {
+      background: #dc3545;
+    }
+
+    /* Ensure AOS or other animations do not block clicks */
+    [data-aos] {
+      pointer-events: auto !important;
+    }
+/* 🔵 Top Strip */
+.top-strip {
+  background: #0d6efd;
+  color: #fff;
+  font-size: 13px;
+  padding: 6px 0;
+}
+
+.top-strip a {
+  color: #fff;
+  margin-left: 20px;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.top-strip a:hover {
+  text-decoration: underline;
+}
+
+/* 🔵 Search */
+.marketplace-search {
+  border: 2px solid #0d6efd;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.marketplace-search .form-control {
+  border: none;
+  height: 48px;
+  font-size: 15px;
+}
+
+.marketplace-search .search-btn {
+  background: #0d6efd;
+  color: #fff;
+  border: none;
+  padding: 0 25px;
+  font-weight: 600;
+}
+
+.marketplace-search .search-btn:hover {
+  background: #0b5ed7;
+}
+
+/* 🔵 Header Icons */
+.header-icon {
+  color: #333;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.header-icon i {
+  font-size: 20px;
+}
+
+.header-icon .badge {
+  position: absolute;
+  top: -6px;
+  right: -10px;
+  font-size: 11px;
+}
+
+/* 🔵 Category Bar */
+.category-bar {
+  background: #f8f9fa;
+  border-top: 1px solid #eee;
+  border-bottom: 1px solid #eee;
+  padding: 10px 0;
+}
+
+.category-bar a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+.category-bar a:hover {
+  color: #0d6efd;
+}
+
+.category-menu a {
+  display: block;
+  padding: 8px 0;
+  color: #444;
+}
+
+.category-menu a:hover {
+  color: #0d6efd;
+}
+
+/* 🔵 Sticky Shadow */
+.header {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+/* Make hover image appear on top with smooth transition */
+.category-card {
+    cursor: pointer;
+}
+
+.category-card .hover-img {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    object-fit: cover;
+}
+
+.category-card:hover .hover-img {
+    opacity: 1;
+}
+
+.category-card .main-img {
+    transition: opacity 0.3s ease-in-out;
+}
+
+.category-card:hover .main-img {
+    opacity: 0.3; /* optional: fade the main image a bit */
+}
+.header .header-icon {
+    font-size: 1.2rem;
+    color: #333;
+    position: relative;
+}
+
+.header .header-icon:hover {
+    color: #0d6efd;
+}
+
+.header .badge {
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: #fff;
+    padding: 0.35em 0.5em;
+}
+
+.category-bar {
+    font-weight: 500;
+}
+
+.marketplace-search input {
+    height: 40px;
+}
+
+.marketplace-search button {
+    border-radius: 0;
+}
+/* ===== LUXURY RETURN POLICY ===== */
+.return-policy-luxury {
+  padding: 100px 0;
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  background: #fdfdfd;
+  color: #111;
+}
+
+/* HERO */
+.hero-luxury {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: linear-gradient(135deg, #f8f9fa, #ffffff);
+  padding: 60px;
+  border-radius: 25px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.08);
+  margin-bottom: 80px;
+  flex-wrap: wrap;
+}
+
+.hero-content h1 {
+  font-size: 50px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  letter-spacing: 0.5px;
+}
+
+.hero-content p {
+  font-size: 18px;
+  line-height: 1.8;
+  color: #555;
+}
+
+.hero-card {
+  background: #111827;
+  color: #fff;
+  padding: 40px 50px;
+  border-radius: 25px;
+  text-align: center;
+  min-width: 180px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+  transition: transform 0.3s ease;
+}
+
+.hero-card:hover {
+  transform: translateY(-5px);
+}
+
+.hero-card .days {
+  font-size: 60px;
+  font-weight: 800;
+  display: block;
+}
+
+.hero-card .label {
+  font-size: 18px;
+  opacity: 0.8;
+  letter-spacing: 1px;
+}
+
+/* FEATURES */
+.features-luxury {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 40px;
+  margin-bottom: 80px;
+}
+
+.feature-card-luxury {
+  background: #fff;
+  padding: 40px;
+  border-radius: 25px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+  transition: all 0.4s ease;
+}
+
+.feature-card-luxury:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 25px 50px rgba(0,0,0,0.1);
+}
+
+.icon-wrapper {
+  font-size: 45px;
+  color: #4f46e5;
+  margin-bottom: 25px;
+}
+
+/* REQUIREMENTS */
+.requirements-luxury h2 {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 50px;
+  font-weight: 700;
+  color: #111;
+}
+
+.requirements-grid-luxury {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 30px;
+}
+
+.requirement-card-luxury {
+  display: flex;
+  gap: 20px;
+  background: #f9fafb;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.requirement-card-luxury:hover {
+  transform: translateY(-5px);
+}
+
+.requirement-card-luxury i {
+  font-size: 28px;
+  color: #10b981;
+  margin-top: 5px;
+}
+
+/* STEPS */
+.steps-luxury h2 {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 50px;
+  font-weight: 700;
+  color: #111;
+}
+
+.steps-grid-luxury {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 35px;
+}
+
+.step-card-luxury {
+  background: #fff;
+  padding: 40px;
+  border-radius: 25px;
+  text-align: center;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.06);
+  transition: transform 0.4s ease;
+}
+
+.step-card-luxury:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.12);
+}
+
+.step-number {
+  background: #4f46e5;
+  color: #fff;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  line-height: 50px;
+  margin: 0 auto 20px;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 1px;
+}
+
+/* FAQ */
+.faq-luxury h2 {
+  text-align: center;
+  font-size: 36px;
+  margin-bottom: 40px;
+  font-weight: 700;
+}
+
+.faq-item-luxury {
+  margin-bottom: 20px;
+}
+
+.faq-question-luxury {
+  width: 100%;
+  background: #f3f4f6;
+  border: none;
+  padding: 20px 25px;
+  font-size: 18px;
+  font-weight: 600;
+  border-radius: 20px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.faq-question-luxury:hover {
+  background: #e5e7eb;
+}
+
+.faq-answer-luxury {
+  display: none;
+  padding: 20px 25px;
+  background: #fff;
+  border-radius: 20px;
+  margin-top: 10px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.faq-answer-luxury.active {
+  display: block;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .hero-luxury {
+    flex-direction: column;
+    text-align: center;
+  }
+  .hero-card {
+    margin-top: 30px;
+  }
+}
+</style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+  {% include "header.html" %}
+
+  <main class="main">
+    {% block content %}{% endblock %}
+  </main>
+
+  {% include "footer.html" %}
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center">
+    <i class="bi bi-arrow-up-short"></i>
+  </a>
+
+  <!-- Vendor JS Files -->
+  <script src="{% static 'assets/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/swiper/swiper-bundle.min.js' %}"></script>
+  <script src="{% static 'assets/vendor/glightbox/js/glightbox.min.js' %}"></script>
+  <!-- Third-party libraries first -->
+<script src="{% static 'js/aos.js' %}"></script>
+<script src="{% static 'js/purecounter.js' %}"></script>
+<script src="{% static 'js/drift.js' %}"></script>
+
+<!-- Your custom JS last -->
+<script src="{% static 'js/main.js' %}"></script>
+
+
+  <!-- Main JS -->
+  <script src="{% static 'assets/js/main.js' %}"></script>
+
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

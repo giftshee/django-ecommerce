@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Support{% endblock %}
+
+{% block content %}
+<section id="support" class="support section">
+  <div class="container" data-aos="fade-up">
+
+    <!-- Support Header -->
+    <div class="support-header" data-aos="fade-up">
+      <div class="header-content">
+        <h2>Help & Support Center</h2>
+        <p>Find answers, tutorials, and help from our support team</p>
+      </div>
+    </div>
+
+    <!-- Quick Support Actions -->
+    <div class="quick-support" data-aos="fade-up" data-aos-delay="100">
+      {% for action in quick_actions %}
+      <div class="action-item {{ action.title|slugify }}">
+        <div class="action-content">
+          <i class="bi {{ action.icon }}"></i>
+          <h4>{{ action.title }}</h4>
+          <p>{{ action.description }}</p>
+
+          {% if action.type == "chat" %}
+          <button class="action-button openChatBtn">{{ action.button_text }}</button>
+          {% elif action.type == "email" %}
+          <a href="mailto:{{ action.link }}" class="action-button">{{ action.button_text }}</a>
+          {% elif action.type == "phone" %}
+          <a href="tel:{{ action.link }}" class="action-button">{{ action.button_text }}</a>
+          {% else %}
+          <a href="{{ action.link }}" class="action-button">{{ action.button_text }}</a>
+          {% endif %}
+
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Help Topics -->
+    <div class="help-categories" data-aos="fade-up" data-aos-delay="200">
+      <h3>Popular Help Topics</h3>
+      <div class="category-cards">
+        {% for topic in help_topics %}
+        <a href="{{ topic.link }}" class="category-card" data-aos="zoom-in" data-aos-delay="{{ forloop.counter0|add:1 }}00">
+          <span class="icon"><i class="bi {{ topic.icon }}"></i></span>
+          <h5>{{ topic.title }}</h5>
+          <ul>
+            {% for item in topic.items %}
+            <li>{{ item }}</li>
+            {% endfor %}
+          </ul>
+          <span class="arrow"><i class="bi bi-arrow-right"></i></span>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Self Help -->
+    <div class="self-help" data-aos="fade-up" data-aos-delay="300">
+      <div class="row align-items-center">
+        <div class="col-lg-6">
+          <div class="content-box">
+            <h3>Self-Help Resources</h3>
+            <p class="subtitle">Find answers quickly with our comprehensive resources</p>
+            <div class="resource-links">
+              {% for resource in self_help_resources %}
+              <a href="{{ resource.link }}" class="resource-link">
+                <i class="bi {{ resource.icon }}"></i>
+                <div class="link-content">
+                  <h6>{{ resource.title }}</h6>
+                  <p>{{ resource.description }}</p>
+                </div>
+              </a>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <div class="col-lg-6">
+          <div class="faq-section">
+            <h4>Common Questions</h4>
+            <div class="faq-list">
+              {% for faq in faqs %}
+              <div class="faq-item">
+                <h3>
+                  {{ faq.question }}
+                  <i class="bi bi-plus faq-toggle"></i>
+                </h3>
+                <div class="faq-answer">
+                  <p>{{ faq.answer }}</p>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- Live Chat Popup -->
+<div id="liveChat" class="live-chat-popup">
+  <div class="chat-header">
+    <span>Live Chat</span>
+    <button id="closeChat">&times;</button>
+  </div>
+  <div class="chat-body" id="chatBody">
+    <div id="chatMessages"></div>
+  </div>
+  <div class="chat-input">
+    <input type="text" id="chatMessageInput" placeholder="Type your message...">
+    <button id="sendMessage">Send</button>
+  </div>
+</div>
+
+<style>
+.live-chat-popup {
+    display: none;
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 320px;
+    height: 400px;
+    border: 1px solid #ccc;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    border-radius: 10px;
+    overflow: hidden;
+    z-index: 9999;
+    font-family: Arial, sans-serif;
+}
+.chat-header {
+    background: #25D366;
+    color: white;
+    padding: 10px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.chat-body {
+    height: 300px;
+    padding: 10px;
+    overflow-y: auto;
+    background: #e5ddd5;
+}
+.chat-input {
+    display: flex;
+    border-top: 1px solid #ccc;
+}
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    outline: none;
+}
+.chat-input button {
+    background: #25D366;
+    border: none;
+    color: white;
+    padding: 0 15px;
+    cursor: pointer;
+}
+.user-message { color: black; }
+.admin-message { color: green; font-weight: bold; }
+</style>
+
+<!-- Live Chat JS -->
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const chat = document.getElementById("liveChat");
+    const openBtns = document.querySelectorAll(".openChatBtn");
+    const closeBtn = document.getElementById("closeChat");
+    const sendBtn = document.getElementById("sendMessage");
+    const input = document.getElementById("chatMessageInput");
+    const messages = document.getElementById("chatMessages");
+
+    const userName = "{{ request.user.get_full_name|default:'Guest' }}";
+    const userEmail = "{{ request.user.email|default:'guest@example.com' }}";
+
+    openBtns.forEach(btn => {
+        btn.addEventListener("click", () => {
+            chat.style.display = "block";
+            fetchMessages();
+        });
+    });
+
+    closeBtn.addEventListener("click", () => { chat.style.display = "none"; });
+    sendBtn.addEventListener("click", sendMessage);
+    input.addEventListener("keypress", function(e) { if (e.key === "Enter") sendMessage(); });
+
+    function sendMessage() {
+        const msg = input.value.trim();
+        if (!msg) return;
+        const messageElement = document.createElement("div");
+        messageElement.textContent = userName + ": " + msg;
+        messageElement.classList.add("user-message");
+        messages.appendChild(messageElement);
+        messages.scrollTop = messages.scrollHeight;
+        input.value = "";
+
+        fetch("{% url 'myapp:send_chat_message' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({ message: msg, name: userName, email: userEmail })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status !== 'success') alert('Message failed to send!');
+        });
+    }
+
+    function fetchMessages() {
+        fetch("{% url 'myapp:get_chat_messages' %}?email=" + encodeURIComponent(userEmail))
+            .then(response => response.json())
+            .then(data => {
+                messages.innerHTML = "";
+                data.messages.forEach(msg => {
+                    const el = document.createElement("div");
+                    if (msg.reply) {
+                        el.textContent = "Admin: " + msg.reply;
+                        el.classList.add("admin-message");
+                    } else {
+                        el.textContent = msg.name + ": " + msg.message;
+                        el.classList.add("user-message");
+                    }
+                    messages.appendChild(el);
+                });
+                messages.scrollTop = messages.scrollHeight;
+            });
+    }
+
+    setInterval(fetchMessages, 3000);
+});
+</script>
+{% endblock %}

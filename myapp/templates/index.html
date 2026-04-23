@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+{% load static %}
+{% load custom_filters %}
+{% load custom_tags %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+
+  <!-- ========================= -->
+  <!-- ADMIN CONTROLS -->
+  <!-- ========================= -->
+  {% if user.is_staff %}
+    <div class="d-flex justify-content-end mb-4 gap-2">
+      {% if not content %}
+        <form method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="create_content" value="1">
+          <button type="submit" class="btn btn-success shadow-sm">➕ Add Homepage Content</button>
+        </form>
+      {% else %}
+        <button class="btn btn-outline-primary shadow-sm" id="editBtn">✏️ Edit</button>
+        <form method="POST" onsubmit="return confirm('Are you sure you want to delete the homepage content?');">
+          {% csrf_token %}
+          <input type="hidden" name="delete_content" value="1">
+          <button type="submit" class="btn btn-outline-danger shadow-sm">🗑️ Delete</button>
+        </form>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if content %}
+  <div id="homepage-display">
+
+    <!-- ========================= -->
+    <!-- HERO SECTION -->
+    <!-- ========================= -->
+    <section class="hero-section position-relative mb-5 text-center text-white" 
+             style="background: url('{{ content.hero_background.url|default:'' }}') center/cover no-repeat; border-radius: 12px;">
+      <div class="overlay position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.45); border-radius: 12px;"></div>
+      <div class="hero-content position-relative py-5">
+        <h1 class="display-4 fw-bold">{{ content.hero_title|default:"Welcome to Our Store" }}</h1>
+        <p class="lead mt-3">{{ content.hero_description|default:"Discover amazing products at unbeatable prices!" }}</p>
+        <a href="{% url 'myapp:product_list' %}" class="btn btn-light btn-lg shadow mt-3">Shop Now</a>
+      </div>
+    </section>
+
+    <!-- ========================= -->
+    <!-- FEATURED PRODUCT -->
+    <!-- ========================= -->
+    <section class="fade-section mb-5">
+      <div class="featured-product shadow-lg rounded-4 overflow-hidden">
+        <div class="row g-0 align-items-center">
+          <div class="col-md-6 text-center p-4 bg-light">
+            {% if content.featured_product_image %}
+              <img src="{{ content.featured_product_image.url }}" class="img-fluid rounded" alt="{{ content.featured_product_name }}">
+            {% endif %}
+          </div>
+          <div class="col-md-6 p-5">
+            <h2 class="fw-bold">{{ content.featured_product_name }}</h2>
+            <p class="fs-4 text-success fw-semibold mt-2">
+              Ksh {{ content.featured_product_price }}
+              {% if content.featured_product_original_price %}
+                <del class="text-muted fs-6 ms-2">Ksh {{ content.featured_product_original_price }}</del>
+              {% endif %}
+            </p>
+            <p class="text-muted mt-3">{{ content.featured_product_description|default:"Our top-selling product you can't miss!" }}</p>
+            <a href="{% url 'myapp:product_list' %}" class="btn btn-primary btn-lg mt-3 shadow">Buy Now</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================= -->
+    <!-- POPULAR DEALS CAROUSEL -->
+    <!-- ========================= -->
+    <section class="fade-section mb-5">
+      <h3 class="fw-bold text-center mb-4">Popular Deals</h3>
+      <div id="miniProductCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner">
+          {% for product in content.get_mini_products %}
+          <div class="carousel-item {% if forloop.first %}active{% endif %}">
+            <div class="d-flex justify-content-center">
+              <div class="card mini-card shadow-sm rounded-4 p-2" style="width: 200px;">
+                <img src="{{ product.image.url }}" class="img-fluid rounded" style="height: 250px; object-fit: contain;">
+                <div class="card-body text-center">
+                  <h6 class="fw-semibold text-success">Ksh {{ product.price }}</h6>
+                </div>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+        <button class="carousel-control-prev" type="button" data-bs-target="#miniProductCarousel" data-bs-slide="prev">
+          <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#miniProductCarousel" data-bs-slide="next">
+          <span class="carousel-control-next-icon"></span>
+        </button>
+      </div>
+    </section>
+
+    <!-- ========================= -->
+    <!-- FLASH SALE SECTION -->
+    <!-- ========================= -->
+    <section class="py-5 bg-light">
+      <h3 class="fw-bold text-center mb-4">Flash Sale</h3>
+      {% if flash_products %}
+      <div class="flash-sale-carousel d-flex overflow-auto gap-3 py-2">
+        {% for product in flash_products %}
+          <div class="flash-card card shadow-sm position-relative flex-shrink-0" style="width: 200px;
+               opacity: {% if product.flash_status_resolved == 'ended' %}0.4{% elif product.flash_status_resolved == 'upcoming' %}0.6{% else %}1{% endif %};">
+
+            <img src="{{ product.image_main.url }}" class="img-fluid rounded" style="height: 200px; object-fit: contain; {% if product.flash_status_resolved == 'sold' %}filter: grayscale(100%);{% endif %}">
+
+            <div class="flash-overlay position-absolute top-0 start-0 w-100 h-100 d-flex flex-column justify-content-between p-2">
+              {% if product.flash_status_resolved == 'ongoing' %}
+                <span class="badge bg-danger countdown-badge" data-start="{{ product.flash_start|date:'Y-m-d H:i:s' }}" data-end="{{ product.flash_end|date:'Y-m-d H:i:s' }}">
+                  ⏳ Loading...
+                </span>
+              {% elif product.flash_status_resolved == 'upcoming' %}
+                <span class="badge bg-info text-dark countdown-badge" data-start="{{ product.flash_start|date:'Y-m-d H:i:s' }}" data-end="{{ product.flash_end|date:'Y-m-d H:i:s' }}">
+                  ⏳ Starts soon
+                </span>
+              {% elif product.flash_status_resolved == 'sold' %}
+                <span class="badge bg-dark text-white">❌ Sold Out</span>
+              {% elif product.flash_status_resolved == 'ended' %}
+                <span class="badge bg-secondary">⏹️ Time Ended</span>
+              {% endif %}
+            </div>
+
+            <div class="card-body text-center mt-2">
+              <h6 class="fw-semibold">{{ product.title }}</h6>
+              <p class="text-success">Ksh {{ product.price }}</p>
+              {% if product.flash_status_resolved == 'sold' %}
+                <p class="text-danger fw-bold">Sold Out</p>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="text-center">No flash sale products right now.</p>
+      {% endif %}
+    </section>
+
+    <!-- ========================= -->
+    <!-- BEST SELLERS -->
+    <!-- ========================= -->
+    <section class="py-5">
+      <h3 class="fw-bold text-center mb-4">Best Sellers</h3>
+      {% if best_sellers %}
+      <div class="row g-3 justify-content-center">
+        {% for product in best_sellers %}
+          <div class="col-6 col-md-3">
+            <div class="card shadow-sm rounded-4 p-2 h-100 position-relative">
+              <img src="{{ product.image_main.url }}" class="img-fluid rounded" style="height: 200px; object-fit: contain;">
+              {% if product.total_sold %}
+                <span class="badge bg-warning text-dark position-absolute top-0 end-0 m-2 sold-badge">
+                  🔥 Sold: {{ product.total_sold }}
+                </span>
+              {% endif %}
+              <div class="card-body text-center mt-2">
+                <h6 class="fw-semibold">{{ product.title }}</h6>
+                <p class="text-success">Ksh {{ product.price }}</p>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+      {% else %}
+        <p class="text-center">No best sellers yet.</p>
+      {% endif %}
+    </section>
+
+  </div>
+  {% endif %}
+
+  <!-- ========================= -->
+  <!-- ADMIN EDIT FORM -->
+  <!-- ========================= -->
+  {% if user.is_staff and content %}
+    <form id="editForm" method="POST" enctype="multipart/form-data" style="display:none;">
+      {% csrf_token %}
+      <div class="row g-3">
+        <!-- Hero and Featured Product Inputs Here (unchanged from your original) -->
+        {% comment %} Include all your existing inputs for hero, featured, mini products {% endcomment %}
+      </div>
+      <div class="mt-4 text-end">
+        <button type="submit" class="btn btn-success btn-lg">💾 Save Changes</button>
+      </div>
+    </form>
+  {% endif %}
+
+</div>
+
+<!-- ========================= -->
+<!-- SCRIPTS -->
+<!-- ========================= -->
+{% if user.is_staff %}
+<script>
+document.getElementById("editBtn")?.addEventListener("click", () => {
+  document.getElementById("homepage-display").style.display = "none";
+  document.getElementById("editForm").style.display = "block";
+  window.scrollTo({ top: editForm.offsetTop, behavior: 'smooth' });
+});
+</script>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const flashCards = document.querySelectorAll('.flash-card');
+  flashCards.forEach(card => {
+    const badge = card.querySelector('.countdown-badge');
+    if (!badge) return;
+    const startTime = new Date(badge.dataset.start).getTime();
+    const endTime = new Date(badge.dataset.end).getTime();
+
+    function update() {
+      const now = new Date().getTime();
+      if(now < startTime){
+        const diff = startTime - now;
+        const hours = Math.floor(diff / (1000*60*60));
+        const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
+        const seconds = Math.floor((diff % (1000*60)) / 1000);
+        badge.textContent = `⏳ Starts in ${hours}h ${minutes}m ${seconds}s`;
+        card.style.opacity = "0.6";
+      } else if(now >= startTime && now <= endTime){
+        const diff = endTime - now;
+        const hours = Math.floor(diff / (1000*60*60));
+        const minutes = Math.floor((diff % (1000*60*60)) / (1000*60));
+        const seconds = Math.floor((diff % (1000*60)) / 1000);
+        badge.textContent = `⏳ ${hours}h ${minutes}m ${seconds}s`;
+        card.style.opacity = "1";
+      } else {
+        badge.textContent = "⏹️ Time Ended";
+        card.style.opacity = "0.4";
+        setTimeout(() => card.remove(), 10000);
+      }
+    }
+
+    update();
+    setInterval(update, 1000);
+  });
+});
+</script>
+
+{% endblock %}

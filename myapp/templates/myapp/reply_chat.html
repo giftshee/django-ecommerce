@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}Reply to Chat{% endblock %}
+
+{% block content %}
+<h2>Reply to {{ message.name }} ({{ message.email }})</h2>
+<p><strong>Message:</strong> {{ message.message }}</p>
+
+<form method="POST">
+    {% csrf_token %}
+    <textarea name="reply" rows="5" cols="50" placeholder="Type your reply here">{{ message.reply }}</textarea><br>
+    <button type="submit">Send Reply</button>
+</form>
+<a href="{% url 'myapp:chat_dashboard' %}">Back to dashboard</a>
+{% endblock %}

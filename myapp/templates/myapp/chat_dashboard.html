@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Chat Dashboard{% endblock %}
+
+{% block content %}
+<h2>Live Chat Messages</h2>
+<table border="1" cellpadding="10">
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Message</th>
+        <th>Reply</th>
+        <th>Actions</th>
+    </tr>
+    {% for msg in messages %}
+    <tr>
+        <td>{{ msg.id }}</td>
+        <td>{{ msg.name }}</td>
+        <td>{{ msg.email }}</td>
+        <td>{{ msg.message }}</td>
+        <td>{{ msg.reply|default:"-" }}</td>
+        <td>
+            {% if not msg.is_answered %}
+            <a href="{% url 'myapp:reply_chat_message' msg.id %}">Reply</a>
+            {% else %}
+            Replied
+            {% endif %}
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endblock %}

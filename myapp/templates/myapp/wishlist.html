@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% load static %}
+{% load static humanize %}
+
+{% block content %}
+<div class="container my-5">
+    <h2 class="mb-4">My Wishlist</h2>
+
+    {% if wishlist_items %}
+        <div class="row g-3">
+            {% for item in wishlist_items %}
+                <div class="col-6 col-md-3">
+                    <div class="card h-100">
+
+                        <!-- Product Image -->
+                        {% if item.product.image_main %}
+                            <img src="{{ item.product.image_main.url }}" class="card-img-top" alt="{{ item.product.title }}">
+                        {% else %}
+                            <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="{{ item.product.title }}">
+                        {% endif %}
+
+                        <!-- Product Info -->
+                        <div class="card-body">
+                            <h5 class="card-title">{{ item.product.title }}</h5>
+                            <p class="card-text">Price: ksh{{ item.product.price|floatformat:2|intcomma }}</p>
+                            <a href="{% url 'myapp:product_details' item.product.id %}" class="btn btn-primary btn-sm w-100">View Product</a>
+                        </div>
+
+                        <!-- Remove from Wishlist -->
+                        <div class="card-footer p-2">
+                            {% if request.user.is_authenticated %}
+                                <form action="{% url 'myapp:remove_from_wishlist' item.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger btn-sm w-100">Remove</button>
+                                </form>
+                            {% else %}
+                                <form action="{% url 'myapp:remove_from_session_wishlist' item.id %}" method="POST">
+                                    {% csrf_token %}
+                                    <button class="btn btn-danger btn-sm w-100">Remove</button>
+                                </form>
+                            {% endif %}
+                        </div>
+
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info text-center">
+            Your wishlist is empty. Start adding products you love!
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

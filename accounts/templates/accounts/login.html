@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% load static %}
+{% load form_tags %}
+
+
+{% block title %}Login{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center vh-100 bg-light">
+  <div class="card shadow p-4" style="width: 400px;">
+    <h3 class="mb-3 text-center">Welcome Back</h3>
+    <p class="text-center text-muted mb-4">Sign in to your account</p>
+
+    <form method="post" action="{% url 'accounts:login' %}">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+
+      <div class="mb-3">
+        {{ form.username.label_tag }}
+        {{ form.username|add_class:"form-control" }}
+        {{ form.username.errors }}
+      </div>
+
+      <div class="mb-3">
+        {{ form.password.label_tag }}
+        {{ form.password|add_class:"form-control" }}
+        {{ form.password.errors }}
+      </div>
+
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="rememberMe" />
+        <label class="form-check-label" for="rememberMe">Remember me</label>
+      </div>
+
+      <button type="submit" class="btn btn-primary w-100">Sign In</button>
+    </form>
+
+    <hr class="my-4" />
+
+    <div class="text-center">
+      <p>Don't have an account? <a href="{% url 'accounts:register' %}">Create one</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

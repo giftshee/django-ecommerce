@@ -1,0 +1,391 @@
+{% load static %}
+<header id="header" class="header sticky-top shadow-sm">
+
+  <!-- 🔵 TOP STRIP -->
+  <div class="top-strip bg-light py-1">
+    <div class="container-xl d-flex justify-content-between align-items-center">
+      <div>
+        <small>📞 +254 704113033</small>
+      </div>
+      <div class="top-links">
+        <a href="#" class="text-decoration-none text-dark me-3">Sell on ALICHA</a>
+        <a href="#" class="text-decoration-none text-dark me-3">Track Order</a>
+        <a href="#" class="text-decoration-none text-dark">Help</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔵 MAIN HEADER -->
+  <div class="main-header py-3 bg-white border-bottom">
+    <div class="container-xl">
+      <div class="row align-items-center">
+
+<!-- Logo -->
+<div class="col-lg-2 col-md-3 col-6">
+  <a href="{% url 'myapp:index' %}" class="logo d-flex align-items-center text-decoration-none">
+    <!-- Horizontal logo for desktop -->
+    <div class="alicha-logo-horizontal d-none d-md-flex">
+      <div class="logo-icon">🛍</div>
+      <div class="logo-text">ALICHA</div>
+    </div>
+
+    <!-- Vertical logo for mobile -->
+    <div class="alicha-logo-vertical d-flex d-md-none flex-column align-items-center">
+      <div class="logo-icon">🛍</div>
+      <div class="logo-text">ALICHA</div>
+    </div>
+  </a>
+</div>
+
+<style>
+/* Horizontal logo - desktop */
+.alicha-logo-horizontal {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* space between icon and text */
+}
+
+.alicha-logo-horizontal .logo-icon {
+  font-size: 35px;
+  background-color: #FF6A00; /* orange square */
+  color: #ffffff;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.alicha-logo-horizontal .logo-text {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 22px;
+  letter-spacing: 2px;
+  color: #111111;
+  text-align: left;
+}
+
+/* Vertical logo - mobile */
+.alicha-logo-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.alicha-logo-vertical .logo-icon {
+  font-size: 35px;
+  background-color: #FF6A00;
+  color: #ffffff;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-bottom: 5px;
+}
+
+.alicha-logo-vertical .logo-text {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: #111111;
+  text-align: center;
+}
+</style>
+
+        <!-- Search -->
+        <div class="col-lg-7 col-md-6 d-none d-md-block">
+          <form action="{% url 'myapp:search' %}" method="GET">
+            <div class="input-group marketplace-search rounded overflow-hidden shadow-sm">
+              <input type="text"
+                     name="q"
+                     class="form-control border-0"
+                     placeholder="Search for products, brands and categories"
+                     required>
+              <button class="btn btn-primary px-3" type="submit">
+                <i class="bi bi-search"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Account & Cart -->
+        <div class="col-lg-3 col-md-3 col-6 d-flex justify-content-end align-items-center gap-3">
+
+          <!-- Account -->
+          <a href="{% url 'accounts:account' %}" class="header-icon text-dark position-relative">
+            <i class="bi bi-person fs-5"></i>
+            <span class="d-none d-md-inline ms-1">Account</span>
+          </a>
+
+          <!-- Wishlist -->
+          <a href="{% url 'myapp:wishlist' %}" class="header-icon position-relative text-dark">
+            <i class="bi bi-heart fs-5"></i>
+            {% if wishlist_count > 0 %}
+              <span id="wishlist-badge" class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1">
+                {{ wishlist_count }}
+              </span>
+            {% else %}
+              <span id="wishlist-badge" class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle p-1" style="display:none;">0</span>
+            {% endif %}
+          </a>
+
+          <!-- Cart -->
+          <a href="{% url 'myapp:cart_detail' %}" class="header-icon position-relative text-dark">
+            <i class="bi bi-cart3 fs-5"></i>
+            {% if cart_count > 0 %}
+              <span id="cart-badge" class="badge rounded-pill bg-success position-absolute top-0 start-100 translate-middle p-1">
+                {{ cart_count }}
+              </span>
+            {% else %}
+              <span id="cart-badge" class="badge rounded-pill bg-success position-absolute top-0 start-100 translate-middle p-1" style="display:none;">0</span>
+            {% endif %}
+          </a>
+
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 🔵 CATEGORY BAR -->
+  <div class="category-bar bg-primary py-2">
+    <div class="container-xl d-flex align-items-center">
+
+      <!-- All Categories Dropdown -->
+      <div class="dropdown me-4">
+        <button class="btn btn-light dropdown-toggle"
+                data-bs-toggle="dropdown"
+                aria-expanded="false">
+          <i class="bi bi-list"></i> All Categories
+        </button>
+
+        <div class="dropdown-menu p-3 shadow category-menu">
+          <ul class="list-unstyled mb-0">
+            {% for cat in categories %}
+              <li class="dropdown-submenu {% if cat.subcategories.all %}has-children{% endif %}">
+                <a href="{% url 'myapp:category_products' cat.slug %}" class="dropdown-item d-flex justify-content-between align-items-center">
+                  {{ cat.name }}
+                  {% if cat.subcategories.all %}<i class="bi bi-chevron-right small"></i>{% endif %}
+                </a>
+
+                {% if cat.subcategories.all %}
+                  <ul class="list-unstyled ps-3">
+                    {% for sub in cat.subcategories.all %}
+                      <li class="dropdown-submenu {% if sub.subcategories.all %}has-children{% endif %}">
+                        <a href="{% url 'myapp:category_products' sub.slug %}" class="dropdown-item d-flex justify-content-between align-items-center">
+                          {{ sub.name }}
+                          {% if sub.subcategories.all %}<i class="bi bi-chevron-right small"></i>{% endif %}
+                        </a>
+
+                        {% if sub.subcategories.all %}
+                          <ul class="list-unstyled ps-3">
+                            {% for subsub in sub.subcategories.all %}
+                              <li>
+                                <a href="{% url 'myapp:category_products' subsub.slug %}" class="dropdown-item">
+                                  {{ subsub.name }}
+                                </a>
+                              </li>
+                            {% endfor %}
+                          </ul>
+                        {% endif %}
+
+                      </li>
+                    {% endfor %}
+                  </ul>
+                {% endif %}
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+
+      <!-- Quick Links -->
+      <nav class="flex-grow-1 d-none d-md-block">
+        <ul class="d-flex list-unstyled gap-4 mb-0 text-white">
+          <li><a href="{% url 'myapp:index' %}" class="text-white text-decoration-none">Home</a></li>
+          <li><a href="{% url 'myapp:product_list' %}" class="text-white text-decoration-none">Products</a></li>
+          <li><a href="{% url 'myapp:about' %}" class="text-white text-decoration-none">About</a></li>
+          <li><a href="{% url 'myapp:contact' %}" class="text-white text-decoration-none">Contact</a></li>
+          <li><a href="{% url 'myapp:flash_sale' %}" class="text-white text-decoration-none">Flash Sale</a></li>
+          <li><a href="{% url 'myapp:new_arrivals' %}" class="text-white text-decoration-none">New Arrivals</a></li>
+          <li><a href="{% url 'myapp:index' %}#best-sellers" class="text-white text-decoration-none">Best Sellers</a></li>
+        </ul>
+      </nav>
+
+      <!-- Mobile Search Icon -->
+      <button class="btn d-md-none ms-auto text-white"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#mobileSearch">
+        <i class="bi bi-search"></i>
+      </button>
+
+    </div>
+
+    <!-- Mobile Search -->
+    <div class="collapse d-md-none p-3 bg-white border-top" id="mobileSearch">
+      <form action="{% url 'myapp:search' %}" method="GET">
+        <div class="input-group marketplace-search rounded">
+          <input type="text"
+                 name="q"
+                 class="form-control"
+                 placeholder="Search products..."
+                 required>
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-search"></i>
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+
+</header>
+
+<!-- 🔵 AJAX Script for Cart & Wishlist -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Add to Cart
+  document.querySelectorAll('.add-to-cart-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      fetch(this.action, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
+      })
+      .then(res => res.json())
+      .then(data => {
+        const cartBadge = document.getElementById('cart-badge');
+        cartBadge.style.display = 'inline-block';
+        cartBadge.textContent = data.cart_count;
+        cartBadge.classList.add('badge-bump');
+        setTimeout(() => cartBadge.classList.remove('badge-bump'), 500);
+      });
+    });
+  });
+
+  // Wishlist
+  document.querySelectorAll('.wishlist-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('i');
+      const csrfToken = this.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      fetch(this.action, {
+        method: 'POST',
+        headers: { 'X-CSRFToken': csrfToken },
+      })
+      .then(res => res.json())
+      .then(data => {
+        const wishlistBadge = document.getElementById('wishlist-badge');
+        wishlistBadge.style.display = 'inline-block';
+        wishlistBadge.textContent = data.wishlist_count;
+        wishlistBadge.classList.add('badge-bump');
+        setTimeout(() => wishlistBadge.classList.remove('badge-bump'), 500);
+
+        // Toggle heart icon
+        if (btn.classList.contains('bi-heart')) {
+          btn.classList.remove('bi-heart');
+          btn.classList.add('bi-heart-fill', 'text-danger');
+        } else {
+          btn.classList.remove('bi-heart-fill', 'text-danger');
+          btn.classList.add('bi-heart');
+        }
+      });
+    });
+  });
+
+});
+</script>
+
+<!-- 🔵 CSS for Badge Animation, Dropdown, and ALICHA Logo -->
+<style>
+.badge-bump {
+  animation: bump 0.5s ease;
+}
+
+@keyframes bump {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3); }
+  50% { transform: scale(1); }
+  100% { transform: scale(1); }
+}
+
+.header-icon .badge {
+  font-size: 0.7rem;
+}
+
+/* Multi-level dropdown styling */
+.dropdown-submenu {
+    position: relative;
+}
+
+.dropdown-submenu > ul {
+    display: none;
+    position: absolute;
+    left: 100%;
+    top: 0;
+    min-width: 200px;
+    z-index: 1000;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 0.5rem 0;
+}
+
+/* Show submenu on hover */
+.dropdown-submenu:hover > ul {
+    display: block;
+}
+
+/* Arrow indicator for items with children */
+.dropdown-submenu.has-children > a::after {
+    content: "▶";
+    float: right;
+    font-size: 0.7rem;
+    margin-left: 0.5rem;
+}
+
+/* Hover background */
+.dropdown-menu a.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+/* 🔹 ALICHA Shopping Bag Logo */
+.alicha-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 80px;
+}
+
+.logo-icon {
+  font-size: 35px;
+  background-color: #FF6A00; /* orange square */
+  color: #ffffff; /* white A inside */
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-bottom: 5px;
+}
+
+.logo-text {
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: #111111;
+  text-align: center;
+}
+</style>

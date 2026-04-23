@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>No Orders Found</h2>
+<p>You have not placed any orders yet.</p>
+<a href="{% url 'myapp:index' %}">Go back to home</a>
+{% endblock %}

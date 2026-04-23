@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ product.title }}{% endblock %}
+
+{% block content %}
+<section id="product-details" class="product-details section">
+  <div class="container">
+
+    <div class="row">
+      <!-- Product Images -->
+      <div class="col-md-6">
+        {% if product.image_main %}
+          <img src="{{ product.image_main.url }}" class="img-fluid" alt="{{ product.title }}">
+        {% else %}
+          <img src="{% static 'images/default-product.jpg' %}" class="img-fluid" alt="{{ product.title }}">
+        {% endif %}
+      </div>
+
+      <!-- Product Info -->
+      <div class="col-md-6">
+        <h1>{{ product.title }}</h1>
+        <p>{{ product.description }}</p>
+
+        <!-- Prices -->
+        <p>
+          {% if product.old_price %}
+            <span class="text-muted text-decoration-line-through">
+              ksh {{ product.old_price|floatformat:2 }}
+            </span>
+          {% endif %}
+          <span class="fw-bold">ksh {{ product.price|floatformat:2 }}</span>
+        </p>
+
+        <!-- Optional: Add to Cart button -->
+        <form method="post" action="{% url 'myapp:add_to_cart' product.pk %}">
+          {% csrf_token %}
+          <input type="number" name="quantity" value="1" min="1" class="form-control w-25 mb-2">
+          <button type="submit" class="btn btn-success mb-3">Add to Cart</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Admin Controls -->
+    {% if user.is_staff %}
+    <section class="admin-controls mt-5 p-4 bg-light border rounded">
+      <h3>Admin Controls</h3>
+
+      <!-- Edit Product -->
+      <form method="post" action="{% url 'myapp:product_edit' product.pk %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="text" name="title" value="{{ product.title }}" class="form-control mb-2" placeholder="Product Title">
+        <input type="number" step="0.01" name="price" value="{{ product.price }}" class="form-control mb-2" placeholder="Price">
+        <input type="number" step="0.01" name="old_price" value="{{ product.old_price }}" class="form-control mb-2" placeholder="Old Price">
+        <textarea name="description" class="form-control mb-2" placeholder="Description">{{ product.description }}</textarea>
+        <input type="file" name="image_main" class="form-control mb-2">
+        <input type="file" name="image_hover" class="form-control mb-2">
+        <button class="btn btn-warning">Update</button>
+      </form>
+
+      <!-- Delete Product -->
+      <form method="post" action="{% url 'myapp:product_delete' product.pk %}" class="mt-3" onsubmit="return confirm('Are you sure you want to delete this product?');">
+        {% csrf_token %}
+        <button class="btn btn-danger">Delete</button>
+      </form>
+    </section>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}
