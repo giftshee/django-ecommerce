@@ -12,12 +12,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # --- Security ---
 SECRET_KEY = 'django-insecure-@&rb70!o1^167++qzzjw0=7(&)auot$7p!q%9i_*(y=__amg#b'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "django-ecommerce-d1ss.onrender.com",
+]
 
 # ✅ CSRF Trusted Origins (Django 4.0+ requires this for local development)
+
 CSRF_TRUSTED_ORIGINS = [
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
+    "https://django-ecommerce-d1ss.onrender.com",
+
 ]
 
 # --- Installed Apps ---
